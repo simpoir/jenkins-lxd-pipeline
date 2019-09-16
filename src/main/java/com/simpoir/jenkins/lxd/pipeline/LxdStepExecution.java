@@ -33,9 +33,11 @@ public class LxdStepExecution extends AbstractStepExecutionImpl {
 
         Launcher launcher = context.get(Launcher.class);
         launcher.launch().cmds("lxc", "launch", step.imageName, containerName, "--ephemeral",
-                 // privileged to simplify mounting worksapce in container without mapping UIDs
+                 // privileged to simplify mounting workspace in container without mapping UIDs
                 "--config", "security.privileged=true"
         ).stdout(printStream).stderr(printStream).join();
+        // XXX We're mounting the mounting the parent as some required resources and scripts are stored in temp
+        // folders there. Ideally only required data would be mounted. (#1)
         String workspaceDir =  ws.getParent().absolutize().getRemote();
         launcher.launch().cmds("lxc", "config", "device", "add", containerName, "workspace", "disk",
                 "source=" + workspaceDir, "path=" + workspaceDir).join();
@@ -66,9 +68,9 @@ public class LxdStepExecution extends AbstractStepExecutionImpl {
     }
 
     public static class LxdLauncherDecorator extends LauncherDecorator implements Serializable {
-        public final String containerName;
+        final String containerName;
 
-        public LxdLauncherDecorator(String containerName) {
+        LxdLauncherDecorator(String containerName) {
             this.containerName = containerName;
         }
 
@@ -81,7 +83,7 @@ public class LxdStepExecution extends AbstractStepExecutionImpl {
     public static class Callback extends BodyExecutionCallback.TailCall {
         private final String containerName;
 
-        public Callback(String containerName) {
+        Callback(String containerName) {
             this.containerName = containerName;
         }
 

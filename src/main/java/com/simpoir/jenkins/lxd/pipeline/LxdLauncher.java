@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class LxdLauncher extends Launcher {
 
-    public final Launcher wrapped;
-    public final String containerName;
+    private final Launcher wrapped;
+    private final String containerName;
 
     LxdLauncher(Launcher wrapped, String containerName) {
         super(wrapped);
@@ -24,11 +24,22 @@ public class LxdLauncher extends Launcher {
     }
 
     @Override
-    public Proc launch(ProcStarter starter) throws IOException {
-        List<String> args = new ArrayList<>(Arrays.asList("lxc", "exec", containerName, "--"));
-        args.addAll(starter.cmds());
-        starter.cmds(args);
-        return wrapped.launch(starter);
+    public Proc launch(ProcStarter cmd) throws IOException {
+        List<String> args = new ArrayList<>(Arrays.asList("lxc", "exec", containerName, "--", "env"));
+
+        FilePath pwd = cmd.pwd();
+        if (pwd != null) {
+            args.add(String.format("--chdir=%s", pwd));
+        }
+
+        String[] envs = cmd.envs();
+        if (envs != null) {
+            args.addAll(Arrays.asList(envs));
+        }
+
+        args.addAll(cmd.cmds());
+        cmd.cmds(args);
+        return wrapped.launch(cmd);
     }
 
     @Override

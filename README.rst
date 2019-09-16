@@ -19,10 +19,9 @@ Build, install and create a pipeline like
 
 ::
     node {
-        lxd("ubuntu:xenial") {
+        lxd([image: "ubuntu:xenial"]) {
             sh "hostname"
-            sh "sudo apt install stuff"
-            sh "do more stuff"
+            sh "sudo apt install -y stuff"
         }
     }
 
@@ -30,5 +29,5 @@ Build, install and create a pipeline like
 Isn't there already docker support?
 -----------------------------------
 
-Yes, and it probably works, but sometimes your app doesn't fit that model
-because 
+Yes, but sometimes your app doesn't fit that model. If you require running
+services, database, multiple process, etc. LXD is probably a better bet.

@@ -7,14 +7,19 @@ import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class LxdStep extends AbstractStepImpl implements Serializable {
 
-    public final String imageName;
+    final String imageName;
+    private final Map<String, String> lxdConfig;
+    private final Map<String, String> lxdDisks;
 
     @DataBoundConstructor
-    public LxdStep(String imageName) {
-        this.imageName = imageName;
+    public LxdStep(String image, Map<String, String> config, Map<String, String> disks) {
+        this.imageName = image;
+        this.lxdConfig = config;
+        this.lxdDisks = disks;
     }
 
     @Override
